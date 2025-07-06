@@ -136,3 +136,4 @@ async def chat(req: ChatRequest):
         "last_question": last_question,
         "asked_indices": asked_indices
     }
+ 

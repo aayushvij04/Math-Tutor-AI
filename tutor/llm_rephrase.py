@@ -45,3 +45,4 @@ def tutor_llm_response(
     except Exception as e:
         print("Local LLM error (tutor_llm_response):", e)
         return "Sorry, I couldn't process your input right now."
+ 
