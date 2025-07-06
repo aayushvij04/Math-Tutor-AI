@@ -1,0 +1,9 @@
+langchain
+langchain_community
+sentence-transformers
+faiss-cpu
+transformers
+fastapi
+uvicorn
+scikit-learn
+streamlit
