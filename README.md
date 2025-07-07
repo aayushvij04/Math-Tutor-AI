@@ -499,13 +499,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/your-username/math-tutor-chatbot/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/math-tutor-chatbot/discussions)
-- **Email**: your-email@example.com
-
----
 
 ## 🔄 Changelog
 
