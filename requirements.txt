@@ -7,3 +7,8 @@ fastapi
 uvicorn
 scikit-learn
 streamlit
+openai-whisper
+pyttsx3
+sounddevice
+soundfile
+python-multipart

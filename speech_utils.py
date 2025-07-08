@@ -1,4 +1,4 @@
-import speech_recognition as sr
+import whisper
 import pyttsx3
 import sounddevice as sd
 import numpy as np
@@ -10,11 +10,9 @@ import time
 from typing import Optional, Callable
 
 class SpeechHandler:
-    def __init__(self):
-        # Initialize speech recognition
-        self.recognizer = sr.Recognizer()
-        self.recognizer.energy_threshold = 4000
-        self.recognizer.dynamic_energy_threshold = True
+    def __init__(self, model_size="base"):
+        # Initialize speech recognition with Whisper
+        self.model = whisper.load_model(model_size)
         
         # Initialize text-to-speech
         self.tts_engine = pyttsx3.init()
@@ -32,42 +30,27 @@ class SpeechHandler:
         self.is_speaking = False
         self.audio_thread = None
         
-    def speech_to_text(self, timeout: int = 5, phrase_time_limit: int = 10) -> Optional[str]:
+    def speech_to_text(self, audio_data: np.ndarray, sample_rate: int) -> Optional[str]:
         """
-        Convert speech to text using microphone input.
+        Convert speech to text using Whisper.
         
         Args:
-            timeout: Maximum time to wait for speech to start
-            phrase_time_limit: Maximum time for a single phrase
+            audio_data: NumPy array containing audio data
+            sample_rate: Sample rate of the audio data
             
         Returns:
             Transcribed text or None if failed
         """
         try:
-            with sr.Microphone() as source:
-                print("Listening... Speak now!")
-                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
-                
-                audio = self.recognizer.listen(
-                    source, 
-                    timeout=timeout, 
-                    phrase_time_limit=phrase_time_limit
-                )
-                
-                print("Processing speech...")
-                text = self.recognizer.recognize_google(audio)
-                print(f"Transcribed: {text}")
-                return text
-                
-        except sr.WaitTimeoutError:
-            print("No speech detected within timeout")
-            return None
-        except sr.UnknownValueError:
-            print("Could not understand the audio")
-            return None
-        except sr.RequestError as e:
-            print(f"Could not request results; {e}")
-            return None
+            # Normalize audio data to be in the range [-1, 1]
+            audio_data = audio_data.astype(np.float32) / np.iinfo(audio_data.dtype).max
+            
+            print("Processing speech with Whisper...")
+            result = self.model.transcribe(audio_data, fp16=False)
+            text = result['text']
+            print(f"Transcribed: {text}")
+            return text
+            
         except Exception as e:
             print(f"Error in speech recognition: {e}")
             return None
@@ -108,41 +91,10 @@ class SpeechHandler:
             self.is_speaking = False
             if self.audio_thread and self.audio_thread.is_alive():
                 self.audio_thread.join(timeout=1)
-    
-    def listen_continuously(self, callback: Callable[[str], None], stop_phrase: str = "stop listening") -> None:
-        """
-        Continuously listen for speech and call the callback function.
-        
-        Args:
-            callback: Function to call with transcribed text
-            stop_phrase: Phrase to say to stop listening
-        """
-        self.is_listening = True
-        
-        def listen_loop():
-            while self.is_listening:
-                text = self.speech_to_text(timeout=1, phrase_time_limit=5)
-                if text:
-                    text_lower = text.lower().strip()
-                    if stop_phrase.lower() in text_lower:
-                        self.is_listening = False
-                        break
-                    else:
-                        callback(text)
-                time.sleep(0.1)
-        
-        self.audio_thread = threading.Thread(target=listen_loop)
-        self.audio_thread.start()
-    
-    def stop_listening(self) -> None:
-        """Stop continuous listening."""
-        self.is_listening = False
-        if self.audio_thread and self.audio_thread.is_alive():
-            self.audio_thread.join(timeout=1)
 
 # Global speech handler instance
 speech_handler = SpeechHandler()
 
 def get_speech_handler() -> SpeechHandler:
     """Get the global speech handler instance."""
-    return speech_handler 
+    return speech_handler

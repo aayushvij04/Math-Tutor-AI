@@ -1,52 +1,64 @@
-#!/usr/bin/env python3
-"""
-Simple test script for speech-to-text and text-to-speech functionality.
-Run this to test if the speech features work on your system.
-"""
+import requests
+import sounddevice as sd
+import numpy as np
+import scipy.io.wavfile as wav
+import io
 
-import sys
-import time
+API_URL = "http://localhost:8001"
 
-def test_speech_features():
-    print("🎤 Testing Speech Features...")
-    print("=" * 50)
+def record_audio(duration=5, fs=44100):
+    """Record audio from the microphone."""
+    print("Recording for 5 seconds...")
+    recording = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='int16')
+    sd.wait()
+    print("Recording finished.")
+    return recording, fs
+
+def test_speech_to_text(audio_data, sample_rate):
+    """Test the speech-to-text endpoint."""
+    wav_io = io.BytesIO()
+    wav.write(wav_io, sample_rate, audio_data)
+    wav_io.seek(0)
+    files = {'file': ('audio.wav', wav_io, 'audio/wav')}
     
     try:
-        from speech_utils import get_speech_handler
-        speech_handler = get_speech_handler()
-        print("✅ Speech handler initialized successfully")
+        response = requests.post(f"{API_URL}/speech-to-text", files=files)
+        response.raise_for_status()
+        transcribed_text = response.json().get("text")
+        print(f"Transcribed text: {transcribed_text}")
+        return transcribed_text
+    except requests.exceptions.RequestException as e:
+        print(f"Error in speech-to-text test: {e}")
+        return None
+
+def test_text_to_speech(text):
+    """Test the text-to-speech endpoint."""
+    if not text:
+        return
         
-        # Test text-to-speech
-        print("\n🔊 Testing Text-to-Speech...")
-        test_text = "Hello! This is a test of the text to speech functionality."
-        print(f"Speaking: '{test_text}'")
-        speech_handler.text_to_speech(test_text)
-        print("✅ Text-to-speech test completed")
+    payload = {"text": text}
+    
+    try:
+        response = requests.post(f"{API_URL}/text-to-speech", json=payload)
+        response.raise_for_status()
         
-        # Test speech-to-text
-        print("\n🎤 Testing Speech-to-Text...")
-        print("Please speak something when prompted (you have 5 seconds)...")
-        time.sleep(2)
-        
-        text = speech_handler.speech_to_text(timeout=5, phrase_time_limit=5)
-        if text:
-            print(f"✅ Speech recognized: '{text}'")
+        # In a real application, you would handle the audio stream.
+        # For this test, we just confirm the request was successful.
+        if response.status_code == 200:
+            print("Text-to-speech request successful.")
         else:
-            print("⚠️ No speech detected or recognition failed")
-        
-        print("\n🎉 Speech feature test completed!")
-        print("\nTo use in the main app:")
-        print("1. Install dependencies: pip install -r requirements.txt")
-        print("2. Run the Streamlit app: streamlit run streamlit_app.py")
-        print("3. Use the speech controls in the sidebar")
-        
-    except ImportError as e:
-        print(f"❌ Import error: {e}")
-        print("Please install the required dependencies:")
-        print("pip install SpeechRecognition pyttsx3 sounddevice scipy")
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        print("Please check your microphone and audio settings")
+            print(f"Text-to-speech request failed with status: {response.status_code}")
+            
+    except requests.exceptions.RequestException as e:
+        print(f"Error in text-to-speech test: {e}")
 
 if __name__ == "__main__":
-    test_speech_features() 
+    # Record audio
+    audio_data, sample_rate = record_audio()
+    
+    # Test speech-to-text
+    transcribed_text = test_speech_to_text(audio_data, sample_rate)
+    
+    # Test text-to-speech
+    if transcribed_text:
+        test_text_to_speech(transcribed_text)

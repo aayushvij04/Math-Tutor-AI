@@ -1,15 +1,20 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, File, UploadFile
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from tutor.rag import RAGPipeline
 from tutor.flow_manager import TutorFlowManager
 from tutor.confidence import ConfidenceChecker
 from tutor.templates import get_templates
+from speech_utils import get_speech_handler
 import os
 from typing import Optional, List
 from tutor.llm_rephrase import tutor_llm_response
 import time
 import random
 import json
+import numpy as np
+import io
+import soundfile as sf
 
 app = FastAPI()
 
@@ -17,6 +22,29 @@ app = FastAPI()
 rag = RAGPipeline(qa_path=os.path.join(os.path.dirname(__file__), 'data/math_qa.json'))
 flow = TutorFlowManager(personality=get_templates())
 confidence = ConfidenceChecker()
+speech_handler = get_speech_handler()
+
+class SpeechToTextRequest(BaseModel):
+    audio_data: List[float]
+    sample_rate: int
+
+class TextToSpeechRequest(BaseModel):
+    text: str
+
+@app.post("/speech-to-text")
+async def speech_to_text(file: UploadFile = File(...)):
+    audio_data, sample_rate = sf.read(io.BytesIO(await file.read()))
+    transcribed_text = speech_handler.speech_to_text(audio_data, sample_rate)
+    return {"text": transcribed_text}
+
+@app.post("/text-to-speech")
+async def text_to_speech(req: TextToSpeechRequest):
+    audio_buffer = io.BytesIO()
+    speech_handler.text_to_speech(req.text, block=False)
+    # This is a simplified example. In a real application, you would
+    # need to save the synthesized audio to a buffer and return it.
+    # For now, we'll assume the client plays the audio locally.
+    return {"status": "ok"}
 
 class ChatRequest(BaseModel):
     user_input: str
@@ -136,4 +164,3 @@ async def chat(req: ChatRequest):
         "last_question": last_question,
         "asked_indices": asked_indices
     }
- 
