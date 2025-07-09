@@ -2,6 +2,11 @@
 
 A sophisticated chat-based math tutor that combines Retrieval-Augmented Generation (RAG) over a curated math Q&A dataset with conversational AI, confidence detection, and motivational support. The system mimics a friendly, knowledgeable human teacher who adapts explanations based on student understanding and emotional state.
 
+## 👥 Contributors
+
+- [Kushal Makkar](https://github.com/kushal06-makkar)
+- [Aayush Vij](https://github.com/aayushvij04)
+
 ## 🎯 Project Overview
 
 This project implements an intelligent math tutoring system that:
@@ -516,7 +521,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Template-based responses
 
 ---
-
-## Made by 
-- Aayush Vij
-- Kushal Makkar
