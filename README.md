@@ -111,10 +111,12 @@ ollama pull deepseek-r1:1.5b
 # Terminal 1: Start Ollama
 ollama serve
 
-# Terminal 2: Start FastAPI Backend
+# Terminal 2: Start FastAPI Backend (from Math-Tutor-AI directory)
+cd Math-Tutor-AI
 uvicorn api:app --reload --port 8001 --host 0.0.0.0
 
-# Terminal 3: Start Streamlit Frontend
+# Terminal 3: Start Streamlit Frontend (from Math-Tutor-AI directory)
+cd Math-Tutor-AI
 streamlit run streamlit_app.py --server.port 8501
 ```
 
@@ -520,5 +522,30 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Beta release
 - Basic chat functionality
 - Template-based responses
+
+---
+
+## 🗣️ Voice Features (Voice Branch)
+
+This branch adds voice input and output to the Math Tutor Chatbot!
+
+### **Voice Input**
+- Click the **🎤 Start Voice Input** button in the Streamlit UI.
+- Speak your question or response clearly into your microphone.
+- The recognized text will appear in the input box and be sent automatically.
+
+### **Voice Output**
+- The tutor's responses are spoken aloud using your system's default voice.
+- You can toggle voice output on/off with the **🔇 Toggle Voice Output** button.
+- Test the voice output with the **🗣️ Test Voice** button.
+
+### **Voice Settings**
+- Adjust speech speed and volume in the **Voice Settings** expander in the UI.
+- Choose from available system voices (if supported).
+
+### **Tips**
+- Make sure your microphone is working and accessible.
+- Speak clearly and at a normal pace for best results.
+- You can use both voice and text input interchangeably.
 
 ---
