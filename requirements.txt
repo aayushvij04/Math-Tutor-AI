@@ -7,3 +7,6 @@ fastapi
 uvicorn
 scikit-learn
 streamlit
+speechrecognition
+pyttsx3
+pyaudio
