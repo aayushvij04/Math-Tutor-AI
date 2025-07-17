@@ -1,0 +1,2 @@
+# DO NOT COMMIT THIS FILE TO PUBLIC REPOS
+OPENROUTER_API_KEY = "sk-or-your-key-here" 
