@@ -2,6 +2,9 @@
 
 A sophisticated chat-based math tutor that combines Retrieval-Augmented Generation (RAG) over a curated math Q&A dataset with conversational AI, confidence detection, and motivational support. The system mimics a friendly, knowledgeable human teacher who adapts explanations based on student understanding and emotional state.
 
+## Note 
+- For using the project openrouter api go to "open-router" branch on the same repository
+
 ## 👥 Contributors
 
 - [Kushal Makkar](https://github.com/kushal06-makkar)
